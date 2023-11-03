@@ -56,5 +56,8 @@ class HashUrlElement extends LinkableElement {
   bool operator ==(other) => equals(other);
 
   @override
+  int get hashCode => Object.hash(text, originText, url);
+
+  @override
   bool equals(other) => other is HashUrlElement && super.equals(other);
 }

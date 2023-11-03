@@ -52,7 +52,7 @@ class Linkify extends StatelessWidget {
   final int? maxLines;
 
   /// How visual overflow should be handled.
-  final TextOverflow overflow;
+  final TextOverflow? overflow;
 
   /// The number of font pixels for each logical pixel
   final double textScaleFactor;
@@ -73,8 +73,10 @@ class Linkify extends StatelessWidget {
   /// Defines how the paragraph will apply TextStyle.height to the ascent of the first line and descent of the last line.
   final TextHeightBehavior? textHeightBehavior;
 
+  final bool useMouseRegion;
+
   const Linkify({
-    Key? key,
+    super.key,
     required this.text,
     this.linkifiers = defaultLinkifiers,
     this.onOpen,
@@ -93,7 +95,8 @@ class Linkify extends StatelessWidget {
     this.locale,
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
-  }) : super(key: key);
+    this.useMouseRegion = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +109,11 @@ class Linkify extends StatelessWidget {
     return Text.rich(
       buildTextSpan(
         elements,
-        style: Theme.of(context).textTheme.bodyMedium?.merge(style),
+        style: style ?? Theme.of(context).textTheme.bodyMedium,
         onOpen: onOpen,
-        useMouseRegion: true,
-        linkStyle: Theme.of(context)
-            .textTheme
-            .bodyMedium
-            ?.merge(style)
-            .copyWith(
+        useMouseRegion: useMouseRegion,
+        linkStyle: (style ?? Theme.of(context).textTheme.bodyMedium)
+            ?.copyWith(
               color: Colors.blueAccent,
               decoration: TextDecoration.underline,
             )
@@ -139,7 +139,7 @@ class SelectableLinkify extends StatelessWidget {
   final String text;
 
   /// The number of font pixels for each logical pixel
-  final double? textScaleFactor;
+  final double textScaleFactor;
 
   /// Linkifiers to be used for linkify
   final List<Linkifier> linkifiers;
@@ -189,8 +189,8 @@ class SelectableLinkify extends StatelessWidget {
   /// Whether this text field should focus itself if nothing else is already focused.
   final bool autofocus;
 
-  /// Configuration of toolbar options
-  final ToolbarOptions? toolbarOptions;
+  /// Builds the text selection toolbar when requested by the user
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
 
   /// How thick the cursor will be
   final double cursorWidth;
@@ -225,8 +225,10 @@ class SelectableLinkify extends StatelessWidget {
   /// Called when the user changes the selection of text (including the cursor location).
   final SelectionChangedCallback? onSelectionChanged;
 
+  final bool useMouseRegion;
+
   const SelectableLinkify({
-    Key? key,
+    super.key,
     required this.text,
     this.linkifiers = defaultLinkifiers,
     this.onOpen,
@@ -245,7 +247,7 @@ class SelectableLinkify extends StatelessWidget {
     this.strutStyle,
     this.showCursor = false,
     this.autofocus = false,
-    this.toolbarOptions,
+    this.contextMenuBuilder,
     this.cursorWidth = 2.0,
     this.cursorRadius,
     this.cursorColor,
@@ -258,7 +260,8 @@ class SelectableLinkify extends StatelessWidget {
     this.cursorHeight,
     this.selectionControls,
     this.onSelectionChanged,
-  }) : super(key: key);
+    this.useMouseRegion = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -271,17 +274,15 @@ class SelectableLinkify extends StatelessWidget {
     return SelectableText.rich(
       buildTextSpan(
         elements,
-        style: Theme.of(context).textTheme.bodyMedium?.merge(style),
+        style: style ?? Theme.of(context).textTheme.bodyMedium,
         onOpen: onOpen,
-        linkStyle: Theme.of(context)
-            .textTheme
-            .bodyMedium
-            ?.merge(style)
-            .copyWith(
+        linkStyle: (style ?? Theme.of(context).textTheme.bodyMedium)
+            ?.copyWith(
               color: Colors.blueAccent,
               decoration: TextDecoration.underline,
             )
             .merge(linkStyle),
+        useMouseRegion: useMouseRegion,
       ),
       textAlign: textAlign,
       textDirection: textDirection,
@@ -292,7 +293,7 @@ class SelectableLinkify extends StatelessWidget {
       showCursor: showCursor,
       textScaleFactor: textScaleFactor,
       autofocus: autofocus,
-      toolbarOptions: toolbarOptions,
+      contextMenuBuilder: contextMenuBuilder,
       cursorWidth: cursorWidth,
       cursorRadius: cursorRadius,
       cursorColor: cursorColor,
@@ -330,38 +331,66 @@ TextSpan buildTextSpan(
   TextStyle? linkStyle,
   LinkCallback? onOpen,
   bool useMouseRegion = false,
-}) {
-  return TextSpan(
-    children: elements.map<InlineSpan>(
-      (element) {
-        if (element is LinkableElement) {
-          if (useMouseRegion) {
-            return LinkableSpan(
-              mouseCursor: SystemMouseCursors.click,
-              inlineSpan: TextSpan(
-                text: element.text,
-                style: linkStyle,
-                recognizer: onOpen != null
-                    ? (TapGestureRecognizer()..onTap = () => onOpen(element))
-                    : null,
-              ),
-            );
-          } else {
-            return TextSpan(
-              text: element.text,
-              style: linkStyle,
-              recognizer: onOpen != null
-                  ? (TapGestureRecognizer()..onTap = () => onOpen(element))
-                  : null,
-            );
-          }
-        } else {
-          return TextSpan(
+}) =>
+    TextSpan(
+      children: buildTextSpanChildren(
+        elements,
+        style: style,
+        linkStyle: linkStyle,
+        onOpen: onOpen,
+        useMouseRegion: useMouseRegion,
+      ),
+    );
+
+/// Raw TextSpan builder for more control on the RichText
+List<InlineSpan>? buildTextSpanChildren(
+  List<LinkifyElement> elements, {
+  TextStyle? style,
+  TextStyle? linkStyle,
+  LinkCallback? onOpen,
+  bool useMouseRegion = false,
+}) =>
+    [
+      for (var element in elements)
+        if (element is LinkableElement)
+          TextSpan(
+            text: element.text,
+            style: linkStyle,
+            recognizer: onOpen != null
+                ? (TapGestureRecognizer()..onTap = () => onOpen(element))
+                : null,
+            mouseCursor: useMouseRegion ? SystemMouseCursors.click : null,
+          )
+        else
+          TextSpan(
             text: element.text,
             style: style,
-          );
-        }
-      },
-    ).toList(),
-  );
+          ),
+    ];
+
+class LinkifySpan extends TextSpan {
+  LinkifySpan({
+    required String text,
+    TextStyle? linkStyle,
+    LinkCallback? onOpen,
+    LinkifyOptions options = const LinkifyOptions(),
+    List<Linkifier> linkifiers = defaultLinkifiers,
+    bool useMouseRegion = false,
+    super.style,
+    super.recognizer,
+    super.mouseCursor,
+    super.onEnter,
+    super.onExit,
+    super.semanticsLabel,
+    super.locale,
+    super.spellOut,
+  }) : super(
+          children: buildTextSpanChildren(
+            linkify(text, options: options, linkifiers: linkifiers),
+            style: style,
+            linkStyle: linkStyle,
+            onOpen: onOpen,
+            useMouseRegion: useMouseRegion,
+          ),
+        );
 }

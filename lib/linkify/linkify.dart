@@ -1,18 +1,26 @@
 import 'src/email.dart';
 import 'src/hash_url.dart';
+import 'src/phone_number.dart';
 import 'src/url.dart';
 
 export 'src/email.dart' show EmailLinkifier, EmailElement;
+export 'src/hash_url.dart' show HashUrlLinkifier, HashUrlElement;
+export 'src/phone_number.dart' show PhoneNumberLinkifier, PhoneNumberElement;
 export 'src/url.dart' show UrlLinkifier, UrlElement;
 export 'src/user_tag.dart' show UserTagLinkifier, UserTagElement;
 
 abstract class LinkifyElement {
   final String text;
+  final String originText;
 
-  LinkifyElement(this.text);
+  LinkifyElement(this.text, [String? originText])
+      : originText = originText ?? text;
 
   @override
   bool operator ==(other) => equals(other);
+
+  @override
+  int get hashCode => Object.hash(text, originText);
 
   bool equals(other) => other is LinkifyElement && other.text == text;
 }
@@ -20,10 +28,14 @@ abstract class LinkifyElement {
 class LinkableElement extends LinkifyElement {
   final String url;
 
-  LinkableElement(String? text, this.url) : super(text ?? url);
+  LinkableElement(String? text, this.url, [String? originText])
+      : super(text ?? url, originText);
 
   @override
   bool operator ==(other) => equals(other);
+
+  @override
+  int get hashCode => Object.hash(text, originText, url);
 
   @override
   bool equals(other) =>
@@ -32,7 +44,7 @@ class LinkableElement extends LinkifyElement {
 
 /// Represents an element containing text
 class TextElement extends LinkifyElement {
-  TextElement(String text) : super(text);
+  TextElement(super.text);
 
   @override
   String toString() {
@@ -41,6 +53,9 @@ class TextElement extends LinkifyElement {
 
   @override
   bool operator ==(other) => equals(other);
+
+  @override
+  int get hashCode => Object.hash(text, originText);
 
   @override
   bool equals(other) => other is TextElement && super.equals(other);
@@ -85,10 +100,12 @@ class LinkifyOptions {
 const _urlLinkifier = UrlLinkifier();
 const _emailLinkifier = EmailLinkifier();
 const _hashUrlLinkifier = HashUrlLinkifier();
+const _phoneNumberLinkifier = PhoneNumberLinkifier();
 const List<Linkifier> defaultLinkifiers = [
   _hashUrlLinkifier,
   _urlLinkifier,
-  _emailLinkifier
+  _emailLinkifier,
+  _phoneNumberLinkifier,
 ];
 
 /// Turns [text] into a list of [LinkifyElement]
@@ -113,7 +130,7 @@ List<LinkifyElement> linkify(
     return list;
   }
 
-  for (Linkifier linkifier in linkifiers) {
+  for (var linkifier in linkifiers) {
     list = linkifier.parse(list, options);
   }
 

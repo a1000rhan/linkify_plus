@@ -5,9 +5,11 @@ import 'package:linkify_plus/linkify/linkify.dart';
 import 'package:linkify_plus/linkify_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(LinkifyExample());
+void main() => runApp(const LinkifyExample());
 
 class LinkifyExample extends StatelessWidget {
+  const LinkifyExample({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,7 +17,7 @@ class LinkifyExample extends StatelessWidget {
       title: 'linkify_plus example',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('linkify_plus example'),
+          title: const Text('linkify_plus example'),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -24,7 +26,7 @@ class LinkifyExample extends StatelessWidget {
               child: Linkify(
                 onOpen: _onOpen,
                 textScaleFactor: 2,
-                options: LinkifyOptions(),
+                options: const LinkifyOptions(),
                 text: "Made by #https://cretezy.com#Resource1#",
               ),
             ),
@@ -32,7 +34,7 @@ class LinkifyExample extends StatelessWidget {
               child: Linkify(
                 onOpen: _onOpen,
                 textScaleFactor: 2,
-                options: LinkifyOptions(),
+                options: const LinkifyOptions(),
                 text:
                     "Made by #https://dev.ihealthlabs.com/account/sign-up-success#iHealth# and unMade by #https://dev.google.com/account/sign-up-success#iHealth3# and unMade by https://dev.google.com/account/sign-up-success",
               ),
@@ -40,7 +42,7 @@ class LinkifyExample extends StatelessWidget {
             Center(
               child: SelectableLinkify(
                 onOpen: _onOpen,
-                linkifiers: [UserTagLinkifier()],
+                linkifiers: const [UserTagLinkifier()],
                 textScaleFactor: 4,
                 text: 'Hello @JohnDoe, did you see what @JaneDoe posted?',
               ),
