@@ -1,3 +1,5 @@
+## [6.0.1] 
+- Added HyperLinkifier to support [click here](https://urltolinkto.com) Format
 ## [6.0.0] 
 - Up to date with flutter_linkify
 ## [5.0.4] - 2023-03-30
