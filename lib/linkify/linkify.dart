@@ -1,5 +1,6 @@
 import 'src/email.dart';
 import 'src/hash_url.dart';
+import 'src/hyperlink.dart';
 import 'src/phone_number.dart';
 import 'src/url.dart';
 
@@ -97,11 +98,14 @@ class LinkifyOptions {
   });
 }
 
+const _hyperLinkifier = HyperLinkifier();
 const _urlLinkifier = UrlLinkifier();
 const _emailLinkifier = EmailLinkifier();
 const _hashUrlLinkifier = HashUrlLinkifier();
 const _phoneNumberLinkifier = PhoneNumberLinkifier();
+
 const List<Linkifier> defaultLinkifiers = [
+  _hyperLinkifier,
   _hashUrlLinkifier,
   _urlLinkifier,
   _emailLinkifier,

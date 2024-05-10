@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:linkify_plus/linkify/linkify.dart';
+import 'package:linkify_plus/linkify/src/hyperlink.dart';
 import 'package:linkify_plus/linkify_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,6 +29,24 @@ class LinkifyExample extends StatelessWidget {
                 textScaleFactor: 2,
                 options: const LinkifyOptions(),
                 text: "Made by #https://cretezy.com#Resource1#",
+              ),
+            ),
+            Center(
+              child: Linkify(
+                onOpen: _onOpen,
+                linkifiers: const [HyperLinkifier()],
+                textScaleFactor: 2,
+                options: const LinkifyOptions(),
+                text: "[Test](http://urltolinkto.com)",
+              ),
+            ),
+            Center(
+              child: Linkify(
+                onOpen: _onOpen,
+                linkifiers: const [HyperLinkifier()],
+                textScaleFactor: 2,
+                options: const LinkifyOptions(),
+                text: "[Mail](tel:123-456-7890)",
               ),
             ),
             Center(
