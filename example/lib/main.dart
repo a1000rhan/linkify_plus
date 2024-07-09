@@ -28,7 +28,16 @@ class LinkifyExample extends StatelessWidget {
                 onOpen: _onOpen,
                 textScaleFactor: 2,
                 options: const LinkifyOptions(),
-                text: "Made by #https://cretezy.com#Resource1#",
+                text:
+                    "Made by #https://cretezy.com#falls prevention - eyesignt#",
+              ),
+            ),
+            Center(
+              child: Linkify(
+                onOpen: _onOpen,
+                textScaleFactor: 2,
+                options: const LinkifyOptions(),
+                text: "Made by #https://cretezy.com#falls#",
               ),
             ),
             Center(
