@@ -1,3 +1,5 @@
+## [6.0.2] 
+- Fixed bug in `HashUrlLinkifier`
 ## [6.0.1] 
 - Added HyperLinkifier to support [click here](https://urltolinkto.com) Format
 ## [6.0.0] 
