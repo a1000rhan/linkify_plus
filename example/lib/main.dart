@@ -29,7 +29,7 @@ class LinkifyExample extends StatelessWidget {
                 textScaleFactor: 2,
                 options: const LinkifyOptions(),
                 text:
-                    "Made by #https://cretezy.com#falls prevention - eyesignt#",
+                    "Hi Jane,Please be advised your team has added a new educational resource \n#https://preprod.caremonitor.com.au/links/?c=UI0b5V0#Falls prevention – eyesight# to your resource library. ",
               ),
             ),
             Center(
